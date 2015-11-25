@@ -15,7 +15,7 @@ package AD310;
  * @author Samuel No
  * @version AD310 11/9/15
  */
-public interface BattleshipBase {
+public interface BattleshipBase extends java.util.Observable{
     /**
      * Sets the game mode
      */
