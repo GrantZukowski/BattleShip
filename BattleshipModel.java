@@ -1,9 +1,12 @@
+package battleship;
+
 
 /**
- * Write a description of class BattleshipModel here.
+ * This is the model of the Battleship game. This will hold all the data structures that will
+ * allow the game to be played
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Samuel Grant Aiman
+ * @version 11/25/14
  */
 public class BattleshipModel extends java.util.Observable implements BattleshipBase 
 {
