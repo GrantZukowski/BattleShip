@@ -1,5 +1,3 @@
-package AD310;
-
 /**
  * This interface holds the model for the Battleship game, including the offensive and defensive boards
  * for both the player and the opponent
@@ -15,7 +13,7 @@ package AD310;
  * @author Samuel No
  * @version AD310 11/9/15
  */
-public interface BattleshipBase extends java.util.Observable{
+public interface BattleshipBase {
     /**
      * Sets the game mode
      */

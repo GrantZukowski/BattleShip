@@ -1,5 +1,3 @@
-package AD310;
-
 
 /**
  * Write a description of class BattleshipModel here.
@@ -13,7 +11,6 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
     private char[][] playerADefBoard, playerBDefBoard, playerAOffBoard, playerBOffBoard;
     private GAMESTATE gameState;
     private boolean playerATurn;
-    private char winner, airCarrier, battleship, cruiser, destroyer1, destroyer2;
     public static final int BOARDLEN = 10;
     public static final int AIRCARRIERHP = 5;
     public static final int BATTLESHIPHP = 4;
@@ -24,6 +21,7 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
     public static final char CRUISER = 'C';
     public static final char DESTROYER1 = 'D';
     public static final char DESTROYER2 = 'E';
+    private char winner;
     /**
      * Constructor for objects of class BattleshipModel
      */
@@ -119,7 +117,7 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
     }
 
     /**
-     * checks the amount of ships placed compared to the max, used by controller
+     * Checks the amount of ships placed compared to the max, used by controller
      * when controller places ships to make sure no more than the max is placed
      * 
      * @param ship which ship is being checked
@@ -243,11 +241,7 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
      * method sets turns to the opposite player
      */
     public void setTurn(){
-        if(playerATurn){
-            playerATurn = false;
-        } else {
-            playerATurn = true;
-        }
+        playerATurn = !playerATurn;
     }
 
     /**
@@ -262,13 +256,20 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
     public void makeShot(char row, int col){
         if(playerATurn){
             //has to set 'O' on player's offensive and opponent's defensive board
-            //checks if the square is not empty, or not already had a shot taken
+            //logic here might be off
             if(playerBDefBoard[convertCharToInt(row)][col] != ' ' && 
             (playerBDefBoard[convertCharToInt(row)][col] != 'O' &&
                 playerBDefBoard[convertCharToInt(row)][col] != 'X')){
                 //hit
+                //check what was in the ship previously
+                char ship = (playerBDefBoard[convertCharToInt(row)][col]);
                 setValue('O', playerAOffBoard, row, col);
                 setValue('O', playerBDefBoard, row, col);
+                //check the ship health here
+                //checks if the ship that got is dead
+                if(getShipState(ship) == SHIPSTATE.DEAD){
+                    checkShipStatePostShot(ship);
+                }
             } else {
                 //miss
                 setValue('X', playerAOffBoard, row, col);
@@ -287,10 +288,30 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
                 setValue('X', playerADefBoard, row, col);
             }
         }
-        //sets the other person's turn 
-        if(checkShotState(row, col) == STATUS.MISS){ 
-            playerATurn = !playerATurn;
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * Method to be used after a ship has been sunk
+     * @char ship which ship is being checked in
+     * @return the ship status
+     */
+    public String checkShipStatePostShot(char ship){
+        String shipState = null;;
+        switch(ship){
+            case AIRCARRIER: shipState = "You have sunk the AirCarrier.";
+            break;
+            case BATTLESHIP: shipState = "You have sunk the Battleship.";
+            break;
+            case CRUISER: shipState = "You have sunk the Cruiser.";
+            break;
+            case DESTROYER1: shipState = "You have sunk a Destroyer.";
+            break;
+            case DESTROYER2: shipState = "You have sunk the a Destroyer.";
+            break;
         }
+        return shipState;
     }
 
     /**
