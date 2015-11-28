@@ -1,9 +1,12 @@
+package battleship;
+
 
 /**
- * Write a description of class BattleshipView here.
+ * This is the view for the Battleship game. This converts the model of the game into viewable 
+ * features in order to play the game.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Samuel Grant Aiman
+ * @version 11/25/14
  */
 public class BattleshipView implements java.util.Observer 
 {
