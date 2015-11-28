@@ -105,7 +105,9 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
         //do bounds checking here, as well as whether or not diagonal overlap
     	if (Collections.frequency(rowChars, row) == 0 || col < 0 || col > 10 ){
     		throw new IllegalArgumentException("Row is not A-J or col not 1-10");
-    	}
+    	} else if ( !('\u0000' == getPlayerADefBoard()[convertCharToInt(row)][col])) {
+    		throw new IllegalArgumentException("That space is already taken");
+        }
         //increment counter
         //direction is set once the second pplace is put
         //check length okay
