@@ -321,28 +321,21 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
         if(playerATurn){
             //has to set 'O' on player's offensive and opponent's defensive board
             //logic here might be off
-            if(playerBDefBoard[convertCharToInt(row)][col] != ' ' && 
-            (playerBDefBoard[convertCharToInt(row)][col] != 'O' &&
-                playerBDefBoard[convertCharToInt(row)][col] != 'X')){
+            if(playerBDefBoard[convertCharToInt(row)][col-1] != ' ' && 
+            (playerBDefBoard[convertCharToInt(row)][col-1] != 'O' &&
+                playerBDefBoard[convertCharToInt(row)][col-1] != 'X')){
                 //hit
-                //check what was in the ship previously
-                char ship = (playerBDefBoard[convertCharToInt(row)][col]);
                 setValue('O', playerAOffBoard, row, col);
                 setValue('O', playerBDefBoard, row, col);
-                //check the ship health here
-                //checks if the ship that got is dead
-                if(getShipState(ship) == SHIPSTATE.DEAD){
-                    checkShipStatePostShot(ship);
-                }
             } else {
                 //miss
                 setValue('X', playerAOffBoard, row, col);
                 setValue('X', playerBDefBoard, row, col);
             }
         } else {
-            if(playerADefBoard[convertCharToInt(row)][col] != ' ' &&
-            (playerADefBoard[convertCharToInt(row)][col] != 'O' &&
-                playerADefBoard[convertCharToInt(row)][col] != 'X')){
+            if(playerADefBoard[convertCharToInt(row)][col-1] != ' ' &&
+            (playerADefBoard[convertCharToInt(row)][col-1] != 'O' &&
+                playerADefBoard[convertCharToInt(row)][col-1] != 'X')){
                 //hit
                 setValue('O', playerBOffBoard, row, col);
                 setValue('O', playerADefBoard, row, col);
@@ -362,15 +355,15 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
     public String checkShipStatePostShot(char ship){
         String shipState = null;;
         switch(ship){
-            case AIRCARRIER: shipState = "You have sunk the AirCarrier.";
+            case AIRCARRIER: shipState = "You have sunk the AirCarrier.\n";
             break;
-            case BATTLESHIP: shipState = "You have sunk the Battleship.";
+            case BATTLESHIP: shipState = "You have sunk the Battleship.\n";
             break;
-            case CRUISER: shipState = "You have sunk the Cruiser.";
+            case CRUISER: shipState = "You have sunk the Cruiser.\n";
             break;
-            case DESTROYER1: shipState = "You have sunk a Destroyer.";
+            case DESTROYER1: shipState = "You have sunk a Destroyer.\n";
             break;
-            case DESTROYER2: shipState = "You have sunk the a Destroyer.";
+            case DESTROYER2: shipState = "You have sunk a Destroyer.\n";
             break;
         }
         return shipState;
@@ -391,7 +384,7 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
             playerBDefBoard[convertCharToInt(row)][col-1] != 'X'){
                 throw new IllegalStateException("There has not been a shot here yet");
             }
-            if(playerBDefBoard[convertCharToInt(row)][col-1] == 'O'){
+            if(playerBDefBoard[convertCharToInt(row)][col-1] == 'X'){
                 return STATUS.MISS;
             } else {
                 return STATUS.HIT;
@@ -401,7 +394,7 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
             playerADefBoard[convertCharToInt(row)][col-1] != 'X'){
                 throw new IllegalStateException("There has not been a shot here yet");
             }
-            if(playerADefBoard[convertCharToInt(row)][col-1] == 'O'){
+            if(playerADefBoard[convertCharToInt(row)][col-1] == 'X'){
                 return STATUS.MISS;
             } else {
                 return STATUS.HIT;
@@ -418,9 +411,11 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
      */
     public boolean isLegalShot(char row, int col){
         if(playerATurn){
-            return playerAOffBoard[convertCharToInt(row)][col-1] != 'O';
+            return (playerAOffBoard[convertCharToInt(row)][col-1] != 'O' &&
+                    playerAOffBoard[convertCharToInt(row)][col-1] != 'X');
         } else {
-            return playerBOffBoard[convertCharToInt(row)][col-1] != 'O';
+            return (playerBOffBoard[convertCharToInt(row)][col-1] != 'O' &&
+                    playerBOffBoard[convertCharToInt(row)][col-1] != 'X');
         }
     }
 

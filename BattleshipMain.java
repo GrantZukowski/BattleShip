@@ -22,15 +22,102 @@ public class BattleshipMain {
         System.out.println("Player A gets to place his ships, you will place one ship at a time, at " +
             "one piece of the ship at a time.");
         Scanner input = new Scanner(System.in);
-        int shipPlacementCounter = 0;  
-        //SETUP for ship counter
+        //sets up the game, players place pieces
+        //setupGameMode(model, view, input);
+        setupTestGame(model);
+        //setting the game state here
+        model.setPlayMode();
+        System.out.println("The game is now entering: PLAY MODE");
+
+        while(!model.isGameOver()){
+            if(model.getCurrentTurn()){
+                System.out.println("Player A, please place your shot." + "\nType your " 
+                    + "row, followed by a space, and then " +
+                    "the column.");
+                char row = validateUserChar(input);
+                int col = validateUserInt(input);      
+                //validates to make sure the shot being place is not a duplicate
+                while(!model.isLegalShot(row, col)){
+                    // print error message
+                    System.out.println("Unacceptable move. Try again.");
+                    // announce whose turn it is
+                    System.out.println("Still player A's turn:");
+                    // get user input again
+                    System.out.println("Player A, please place your shot." + "\nType your " 
+                        + "row, followed by a space, and then " +
+                        "the column.");
+                    row = validateUserChar(input);
+                    col = validateUserInt(input); 
+                }
+                //saves the ship that is getting attacked
+                char ship = (model.getValue(model.getPlayerBDefBoard(), row, col));
+                //makes the shot
+                model.makeShot(row, col);
+                System.out.println(view.getAOffBoard());
+                if(model.checkShotState(row, col) == STATUS.MISS){
+                    model.setTurn();
+                } else {
+                    //check if the ship is dead
+                    if(model.getShipState(ship) == SHIPSTATE.DEAD){
+                        System.out.println(model.checkShipStatePostShot(ship));
+                    }
+                    if(model.isGameOver()){
+                        System.out.println("Player A is the winner!");
+                        model.setGameOver();
+                    }
+                }
+            } else {
+                System.out.println("Player B, please place your shot." + "\nType your " 
+                    + "row, followed by a space, and then " +
+                    "the column.");
+                char row = validateUserChar(input);
+                int col = validateUserInt(input);   
+                //validates to make sure the shot being place is not a duplicate
+                while(!model.isLegalShot(row, col)){
+                    // print error message
+                    System.out.println("Unacceptable move. Try again.");
+                    // announce whose turn it is
+                    System.out.println("Still player B's turn:");
+                    // get user input again
+                    System.out.println("Player B, please place your shot." + "\nType your " 
+                        + "row, followed by a space, and then " +
+                        "the column.");
+                    row = validateUserChar(input);
+                    col = validateUserInt(input); 
+                }
+                char ship = (model.getValue(model.getPlayerADefBoard(), row, col));
+                model.makeShot(row, col);
+                System.out.println(view.getBOffBoard());
+                if(model.checkShotState(row, col) == STATUS.MISS){
+                    model.setTurn();
+                } else {
+                    if(model.getShipState(ship) == SHIPSTATE.DEAD){
+                        System.out.println(model.checkShipStatePostShot(ship));
+                    }
+                    if(model.isGameOver()){
+                        System.out.println("Player B is the winner!");
+                        model.setGameOver();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Method that sets up the game to place ships
+     * 
+     * @param model the model that holds game state
+     * @param view the view of the model that prints out the board
+     * @param input the scanner that is being used for input
+     */
+    private static void setupGameMode(BattleshipModel model, BattleshipView view, Scanner input){
+        int shipPlacementCounter = 0;
         while(model.getCurrentTurn()){
             char currentShip = shipSelector(shipPlacementCounter, model);
             System.out.println("Player A, please place your " + shipToString(model, currentShip)
                 + ". \nType your " + "row, followed by a space, and then " +
                 "the column.");
             //converts a char to a string
-            //need to do some input validation
 
             //validates the input
             char row = validateUserChar(input);
@@ -46,7 +133,6 @@ public class BattleshipMain {
                 currentShip = shipSelector(shipPlacementCounter, model);
             }
         }
-
         shipPlacementCounter = 0; 
         while(!model.getCurrentTurn()){
             char currentShip = shipSelector(shipPlacementCounter, model);
@@ -68,46 +154,14 @@ public class BattleshipMain {
                 currentShip = shipSelector(shipPlacementCounter, model);
             }
         }
-
-        //setting the game state here
-        model.setPlayMode();
-        System.out.println("The game is now entering: PLAY MODE");
-        while(!model.isGameOver()){
-            if(model.getCurrentTurn()){
-                System.out.println("Player A, please place your shot." + "\nType your " 
-                    + "row, followed by a space, and then " +
-                    "the column.");
-                char row = validateUserChar(input);
-                int col = validateUserInt(input);   
-                model.makeShot(row, col);
-                System.out.println(view.getAOffBoard());
-                if(model.checkShotState(row, col) == STATUS.MISS){
-                    model.setTurn();
-                } else {
-                    if(model.isGameOver()){
-                        model.setGameOver();
-                    }
-                }
-            } else {
-                System.out.println("Player B, please place your shot." + "\nType your " 
-                    + "row, followed by a space, and then " +
-                    "the column.");
-                char row = validateUserChar(input);
-                int col = validateUserInt(input);   
-                model.makeShot(row, col);
-                System.out.println(view.getBOffBoard());
-                if(model.checkShotState(row, col) == STATUS.MISS){
-                    model.setTurn();
-                } else {
-                    if(model.isGameOver()){
-                        model.setGameOver();
-                    }
-                }
-                //check if shot kills ship
-            }
-        }
     }
 
+    /**
+     * Method that returns an arraylist that is used to check if the characters passed in are in 
+     * a certain range
+     * 
+     * @return list of chars that are used to comapre
+     */
     private static ArrayList<Character> rangeChar(){
         ArrayList<Character> rowChars = new ArrayList();
         rowChars.add('A');
@@ -133,6 +187,11 @@ public class BattleshipMain {
         return rowChars;
     }
 
+    /**
+     * Method that validates an integer to make sure it is an int and is in the correct bounds
+     * 
+     * @param in the Scanner that is used to get user input
+     */
     private static int validateUserInt(Scanner in){
         int a;
         do {
@@ -146,6 +205,11 @@ public class BattleshipMain {
         return a;
     }
 
+    /**
+     * Method that validates an character to make sure it is an int and is in the correct bounds
+     * 
+     * @param in the Scanner that is used to get user input
+     */
     private static char validateUserChar(Scanner in){
         char a;
         do {
@@ -182,6 +246,12 @@ public class BattleshipMain {
         return a;
     }
 
+    /**
+     * Method that prints out which ship is being checked
+     * 
+     * @param model the model that holds the state
+     * @return the current ship that is being checked
+     */
     private static String shipToString(BattleshipModel model, char ship){
         String shipState = null;;
         switch(ship){
@@ -198,4 +268,46 @@ public class BattleshipMain {
         }
         return shipState;
     }
+    
+    /**
+     * Method that sets up a test game where all ships are preset into the top left corner
+     * 
+     * @param model the model that holds all the game state	
+     */
+    private static void setupTestGame(BattleshipModel model){
+        model.setValue('A', model.getPlayerADefBoard(), 'A', 1);
+        model.setValue('A', model.getPlayerADefBoard(), 'A', 2);
+        model.setValue('A', model.getPlayerADefBoard(), 'A', 3);
+        model.setValue('A', model.getPlayerADefBoard(), 'A', 4);
+        model.setValue('A', model.getPlayerADefBoard(), 'A', 5);
+        model.setValue('B', model.getPlayerADefBoard(), 'A', 6);
+        model.setValue('B', model.getPlayerADefBoard(), 'A', 7);
+        model.setValue('B', model.getPlayerADefBoard(), 'A', 8);
+        model.setValue('B', model.getPlayerADefBoard(), 'A', 9);
+        model.setValue('C', model.getPlayerADefBoard(), 'B', 1);
+        model.setValue('C', model.getPlayerADefBoard(), 'B', 2);
+        model.setValue('C', model.getPlayerADefBoard(), 'B', 3);
+        model.setValue('D', model.getPlayerADefBoard(), 'B', 4);
+        model.setValue('D', model.getPlayerADefBoard(), 'B', 5);
+        model.setValue('E', model.getPlayerADefBoard(), 'B', 6);
+        model.setValue('E', model.getPlayerADefBoard(), 'B', 7);
+
+        model.setValue('A', model.getPlayerBDefBoard(), 'A', 1);
+        model.setValue('A', model.getPlayerBDefBoard(), 'A', 2);
+        model.setValue('A', model.getPlayerBDefBoard(), 'A', 3);
+        model.setValue('A', model.getPlayerBDefBoard(), 'A', 4);
+        model.setValue('A', model.getPlayerBDefBoard(), 'A', 5);
+        model.setValue('B', model.getPlayerBDefBoard(), 'A', 6);
+        model.setValue('B', model.getPlayerBDefBoard(), 'A', 7);
+        model.setValue('B', model.getPlayerBDefBoard(), 'A', 8);
+        model.setValue('B', model.getPlayerBDefBoard(), 'A', 9);
+        model.setValue('C', model.getPlayerBDefBoard(), 'B', 1);
+        model.setValue('C', model.getPlayerBDefBoard(), 'B', 2);
+        model.setValue('C', model.getPlayerBDefBoard(), 'B', 3);
+        model.setValue('D', model.getPlayerBDefBoard(), 'B', 4);
+        model.setValue('D', model.getPlayerBDefBoard(), 'B', 5);
+        model.setValue('E', model.getPlayerBDefBoard(), 'B', 6);
+        model.setValue('E', model.getPlayerBDefBoard(), 'B', 7);
+    }
+
 }
