@@ -1,9 +1,7 @@
 package battleship.bin;
 
-
 import java.awt.*;
 import java.util.*;
-
 
 /**
  * This is the model of the Battleship game. This will hold all the data structures that will
@@ -50,14 +48,14 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
     public void setGameMode(GAMESTATE state){
         gameState = state;
     }
-    
+
     /**
      * Sets the game into play mode
      */
     public void setPlayMode(){
         gameState = GAMESTATE.PLAY;
     }
-    
+
     /**
      * Checks the game state to see whether methods can be called or not
      * @return returns the current gamestate enum
@@ -126,6 +124,8 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
         //do bounds checking here, as well as whether or not diagonal overlap
         if (Collections.frequency(rowChars, row) == 0 || col <= 0 || col > 10 ){
             throw new IllegalArgumentException("Row is not A-J or col not 1-10");
+        } else if (getPlayerADefBoard()[convertCharToInt(row)][col-1] != ' ') {
+            throw new IllegalArgumentException("That space is already taken");
         }
         //increment counter
         //direction is set once the second pplace is put
@@ -145,11 +145,6 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
      * @throws IllegalStateException can not place a ship outside of SETUP mode
      */
     public void placePlayerBShip(char row, int col, char ship){
-        //do bounds checking here, as well as whether or not diagonal overlap
-        //maybe bounds check is called before this is called?
-        //increment counter
-        //direction is set once the second pplace is put
-        //check length okay
         ArrayList<Character> rowChars = new ArrayList();
         rowChars.add('A');
         rowChars.add('B');
@@ -174,6 +169,8 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
         //do bounds checking here, as well as whether or not diagonal overlap
         if (Collections.frequency(rowChars, row) == 0 || col <= 0 || col > 10 ){
             throw new IllegalArgumentException("Row is not A-J or col not 1-10");
+        } else if ( !('\u0000' == getPlayerBDefBoard()[convertCharToInt(row)][col-1])) {
+            throw new IllegalArgumentException("That space is already taken");
         }
         if(!checkShipMax(ship) && checkShipPlacement(row, col)){
             setValue(ship, playerBDefBoard, row, col);
@@ -188,24 +185,6 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
      * @return true if ship is at max, false if less than max
      */
     public boolean checkShipMax(char ship){
-        //         int shipCounter = 0;
-        //         if(playerATurn){
-        //             for(int i = 0; i < BOARDLEN; i++){
-        //                 for(int ix = 0; ix < BOARDLEN; ix++){
-        //                     if(playerADefBoard[i][ix] == ship){
-        //                         shipCounter++;
-        //                     }
-        //                 }
-        //             }
-        //         } else {
-        //             for(int i = 0; i < BOARDLEN; i++){
-        //                 for(int ix = 0; ix < BOARDLEN; ix++){
-        //                     if(playerBDefBoard[i][ix] == ship){
-        //                         shipCounter++;
-        //                     }
-        //                 }
-        //             }
-        //         }
         return (ship == AIRCARRIER && checkShipCount(ship) >= AIRCARRIERHP) ||
         (ship == BATTLESHIP && checkShipCount(ship) >= BATTLESHIPHP) ||
         (ship == CRUISER && checkShipCount(ship) >= CRUISERHP) ||
@@ -253,9 +232,9 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
     public boolean checkShipPlacement(char row, int col){
         //needs to check diagonals and adjacent pieces
         if(playerATurn){
-            return playerAOffBoard[convertCharToInt(row)][col-1] == ' ';
+            return playerADefBoard[convertCharToInt(row)][col-1] == ' ';
         } else {
-            return playerBOffBoard[convertCharToInt(row)][col-1] == ' ';
+            return playerBDefBoard[convertCharToInt(row)][col-1] == ' ';
         }
     }
 
@@ -412,10 +391,10 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
     public boolean isLegalShot(char row, int col){
         if(playerATurn){
             return (playerAOffBoard[convertCharToInt(row)][col-1] != 'O' &&
-                    playerAOffBoard[convertCharToInt(row)][col-1] != 'X');
+                playerAOffBoard[convertCharToInt(row)][col-1] != 'X');
         } else {
             return (playerBOffBoard[convertCharToInt(row)][col-1] != 'O' &&
-                    playerBOffBoard[convertCharToInt(row)][col-1] != 'X');
+                playerBOffBoard[convertCharToInt(row)][col-1] != 'X');
         }
     }
 
@@ -530,7 +509,7 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
     public char getWinner(){
         return winner;   
     }
-    
+
     /**
      * Method that sets all the boards to blank in order to start a new game
      */
@@ -556,6 +535,7 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
             }
         }
     }
+
     /**
      * Resets game by setting all spots on the board blank, used by controller, updates the views
      */

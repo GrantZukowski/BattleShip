@@ -23,8 +23,11 @@ public class BattleshipMain {
             "one piece of the ship at a time.");
         Scanner input = new Scanner(System.in);
         //sets up the game, players place pieces
-        //setupGameMode(model, view, input);
-        setupTestGame(model);
+        setupGameMode(model, view, input);
+
+        //setups a game with ships placed
+        //setupTestGame(model);
+
         //setting the game state here
         model.setPlayMode();
         System.out.println("The game is now entering: PLAY MODE");
@@ -121,7 +124,17 @@ public class BattleshipMain {
 
             //validates the input
             char row = validateUserChar(input);
-            int col = validateUserInt(input);          
+            int col = validateUserInt(input);         
+            while(!model.checkShipPlacement(row, col)){
+                // print error message
+                System.out.println("Unacceptable move. Try again.");
+                // get user input again
+                System.out.println("Player A, please place your ship." + "\nType your " 
+                    + "row, followed by a space, and then " +
+                    "the column.");
+                row = validateUserChar(input);
+                col = validateUserInt(input); 
+            }
             model.placePlayerAShip(row, col, currentShip);
             System.out.println(view.getADefBoard());
             if(model.checkShipMax(currentShip)){
@@ -143,6 +156,16 @@ public class BattleshipMain {
             //need to do some input validation
             char row = validateUserChar(input);
             int col = validateUserInt(input);   
+            while(!model.checkShipPlacement(row, col)){
+                // print error message
+                System.out.println("Unacceptable move. Try again.");
+                // get user input again
+                System.out.println("Player B, please place your ship." + "\nType your " 
+                    + "row, followed by a space, and then " +
+                    "the column.");
+                row = validateUserChar(input);
+                col = validateUserInt(input); 
+            }
             model.placePlayerBShip(row, col, currentShip);
             System.out.println(view.getBDefBoard());        
             if(model.checkShipMax(currentShip)){
@@ -268,7 +291,7 @@ public class BattleshipMain {
         }
         return shipState;
     }
-    
+
     /**
      * Method that sets up a test game where all ships are preset into the top left corner
      * 
