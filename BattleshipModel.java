@@ -130,7 +130,7 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
         //increment counter
         //direction is set once the second pplace is put
         //check length okay
-        if(!checkShipMax(ship) && checkShipPlacement(row, col)){
+        if(!checkShipMax(ship) && checkShipPlacement(row, col, ship)){
             setValue(ship, playerADefBoard, row, col);
         }
     }
@@ -169,10 +169,10 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
         //do bounds checking here, as well as whether or not diagonal overlap
         if (Collections.frequency(rowChars, row) == 0 || col <= 0 || col > 10 ){
             throw new IllegalArgumentException("Row is not A-J or col not 1-10");
-        } else if ( !('\u0000' == getPlayerBDefBoard()[convertCharToInt(row)][col-1])) {
+        } else if (getPlayerBDefBoard()[convertCharToInt(row)][col-1] != ' ') {
             throw new IllegalArgumentException("That space is already taken");
         }
-        if(!checkShipMax(ship) && checkShipPlacement(row, col)){
+        if(!checkShipMax(ship) && checkShipPlacement(row, col, ship)){
             setValue(ship, playerBDefBoard, row, col);
         }
     }
@@ -229,13 +229,154 @@ public class BattleshipModel extends java.util.Observable implements BattleshipB
      * @param col the number of the corresponding column
      * @return true if ship can  be placed, false if there's an adjacent part the same
      */
-    public boolean checkShipPlacement(char row, int col){
+    public boolean checkShipPlacement(char row, int col, char ship){
         //needs to check diagonals and adjacent pieces
         if(playerATurn){
-            return playerADefBoard[convertCharToInt(row)][col-1] == ' ';
+            //special case no ships
+            if(checkShipCount(ship) == 0){
+                return (playerADefBoard[convertCharToInt(row)][col-1] == ' ');
+            } else {
+                return (playerADefBoard[convertCharToInt(row)][col-1] == ' ') && 
+                checkShipAdjacent(row, col, ship);
+            }
+            //check adjacency;
         } else {
-            return playerBDefBoard[convertCharToInt(row)][col-1] == ' ';
+            if(checkShipCount(ship) == 0){
+                return (playerBDefBoard[convertCharToInt(row)][col-1] == ' ');
+            } else {
+                return (playerBDefBoard[convertCharToInt(row)][col-1] == ' ') && 
+                checkShipAdjacent(row, col, ship);
+            }
         }
+    }
+    
+    /**
+     * Method that checks if there is an adjacent ship
+     * 
+     * @param row the current row through user input
+     * @param col the current col through user input
+     * @param ship the current ship being checked
+     * @return true if there's an adjacent ship, false otherwise
+     */
+    public boolean checkShipAdjacent(char row, int col, char ship){
+        int convRow = convertCharToInt(row);
+        int convCol = col-1;
+        boolean endPoint = false;
+        if(convRow == 0 || convCol == 0 || convRow == BOARDLEN-1 || convCol == BOARDLEN-1){
+            endPoint = true;
+        }
+        if(playerATurn){
+            if(endPoint){
+                //check 4 corners
+                if(convRow == 0 && convCol == 0){
+                    return playerADefBoard[convRow][convCol+1] == ship ||
+                    playerADefBoard[convRow+1][convCol] == ship ||
+                    playerADefBoard[convRow+1][convCol+1] == ship;
+                } else if(convRow == BOARDLEN-1 && convCol == 0){
+                    return playerADefBoard[convRow-1][convCol] == ship ||
+                    playerADefBoard[convRow-1][convCol+1] == ship ||
+                    playerADefBoard[convRow][convCol+1] == ship;
+                } else if(convRow == BOARDLEN-1 && convCol == BOARDLEN-1){
+                    return playerADefBoard[convRow-1][convCol-1] == ship ||
+                    playerADefBoard[convRow-1][convCol] == ship ||
+                    playerADefBoard[convRow][convCol-1] == ship;
+                } else if(convRow == 0 && convCol == BOARDLEN-1){
+                    return playerADefBoard[convRow][convCol-1] == ship ||
+                    playerADefBoard[convRow+1][convCol-1] == ship ||
+                    playerADefBoard[convRow+1][convCol] == ship;
+                } else if(convCol == 0){ //checks the endpoints
+                    return playerADefBoard[convRow-1][convCol] == ship ||
+                    playerADefBoard[convRow-1][convCol+1] == ship ||
+                    playerADefBoard[convRow][convCol+1] == ship ||
+                    playerADefBoard[convRow+1][convCol] == ship ||
+                    playerADefBoard[convRow+1][convCol+1] == ship;
+                } else if(convCol == BOARDLEN-1){
+                    return playerADefBoard[convRow-1][convCol-1] == ship ||
+                    playerADefBoard[convRow-1][convCol] == ship ||
+                    playerADefBoard[convRow][convCol-1] == ship ||
+                    playerADefBoard[convRow+1][convCol-1] == ship ||
+                    playerADefBoard[convRow+1][convCol] == ship;
+                } else if(convRow == 0){
+                    return playerADefBoard[convRow][convCol-1] == ship ||
+                    playerADefBoard[convRow][convCol+1] == ship ||
+                    playerADefBoard[convRow+1][convCol-1] == ship ||
+                    playerADefBoard[convRow+1][convCol] == ship ||
+                    playerADefBoard[convRow+1][convCol+1] == ship;
+                } else if(convRow == BOARDLEN-1){
+                    return playerADefBoard[convRow-1][convCol-1] == ship ||
+                    playerADefBoard[convRow-1][convCol] == ship ||
+                    playerADefBoard[convRow-1][convCol+1] == ship ||
+                    playerADefBoard[convRow][convCol-1] == ship ||
+                    playerADefBoard[convRow][convCol+1] == ship;
+                }
+            } else {
+                //checks all points around center
+                return playerADefBoard[convRow-1][convCol-1] == ship ||
+                playerADefBoard[convRow-1][convCol] == ship ||
+                playerADefBoard[convRow-1][convCol+1] == ship ||
+                playerADefBoard[convRow][convCol-1] == ship ||
+                playerADefBoard[convRow][convCol+1] == ship ||
+                playerADefBoard[convRow+1][convCol-1] == ship ||
+                playerADefBoard[convRow+1][convCol] == ship ||
+                playerADefBoard[convRow+1][convCol+1] == ship;
+            }
+        } else {
+            if(endPoint){
+                //check 4 corners
+                if(convRow == 0 && convCol == 0){
+                    return playerBDefBoard[convRow][convCol+1] == ship ||
+                    playerBDefBoard[convRow+1][convCol] == ship ||
+                    playerBDefBoard[convRow+1][convCol+1] == ship;
+                } else if(convRow == BOARDLEN-1 && convCol == 0){
+                    return playerBDefBoard[convRow-1][convCol] == ship ||
+                    playerBDefBoard[convRow-1][convCol+1] == ship ||
+                    playerBDefBoard[convRow][convCol+1] == ship;
+                } else if(convRow == BOARDLEN-1 && convCol == BOARDLEN-1){
+                    return playerBDefBoard[convRow-1][convCol-1] == ship ||
+                    playerBDefBoard[convRow-1][convCol] == ship ||
+                    playerBDefBoard[convRow][convCol-1] == ship;
+                } else if(convRow == 0 && convCol == BOARDLEN-1){
+                    return playerBDefBoard[convRow][convCol-1] == ship ||
+                    playerBDefBoard[convRow+1][convCol-1] == ship ||
+                    playerBDefBoard[convRow+1][convCol] == ship;
+                } else if(convCol == 0){ //checks the endpoints
+                    return playerBDefBoard[convRow-1][convCol] == ship ||
+                    playerBDefBoard[convRow-1][convCol+1] == ship ||
+                    playerBDefBoard[convRow][convCol+1] == ship ||
+                    playerBDefBoard[convRow+1][convCol] == ship ||
+                    playerBDefBoard[convRow+1][convCol+1] == ship;
+                } else if(convCol == BOARDLEN-1){
+                    return playerBDefBoard[convRow-1][convCol-1] == ship ||
+                    playerBDefBoard[convRow-1][convCol] == ship ||
+                    playerBDefBoard[convRow][convCol-1] == ship ||
+                    playerBDefBoard[convRow+1][convCol-1] == ship ||
+                    playerBDefBoard[convRow+1][convCol] == ship;
+                } else if(convRow == 0){
+                    return playerBDefBoard[convRow][convCol-1] == ship ||
+                    playerBDefBoard[convRow][convCol+1] == ship ||
+                    playerBDefBoard[convRow+1][convCol-1] == ship ||
+                    playerBDefBoard[convRow+1][convCol] == ship ||
+                    playerBDefBoard[convRow+1][convCol+1] == ship;
+                } else if(convRow == BOARDLEN-1){
+                    return playerBDefBoard[convRow-1][convCol-1] == ship ||
+                    playerBDefBoard[convRow-1][convCol] == ship ||
+                    playerBDefBoard[convRow-1][convCol+1] == ship ||
+                    playerBDefBoard[convRow][convCol-1] == ship ||
+                    playerBDefBoard[convRow][convCol+1] == ship;
+                } 
+            }else {
+                //checks all points around center
+                return playerBDefBoard[convRow-1][convCol-1] == ship ||
+                playerBDefBoard[convRow-1][convCol] == ship ||
+                playerBDefBoard[convRow-1][convCol+1] == ship ||
+                playerBDefBoard[convRow][convCol-1] == ship ||
+                playerBDefBoard[convRow][convCol+1] == ship ||
+                playerBDefBoard[convRow+1][convCol-1] == ship ||
+                playerBDefBoard[convRow+1][convCol] == ship ||
+                playerBDefBoard[convRow+1][convCol+1] == ship;
+            }
+        }
+        return false;
     }
 
     /**

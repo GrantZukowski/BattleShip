@@ -56,7 +56,7 @@ public interface BattleshipBase {
     /**
      * Method that checks if the placement of the ship part is adjacent to another piece
      */
-    public boolean checkShipPlacement(char row, int col);
+    public boolean checkShipPlacement(char row, int col, char ship);
 
     /**
      * Method that check's whose turn it is

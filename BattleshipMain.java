@@ -125,7 +125,7 @@ public class BattleshipMain {
             //validates the input
             char row = validateUserChar(input);
             int col = validateUserInt(input);         
-            while(!model.checkShipPlacement(row, col)){
+            while(!model.checkShipPlacement(row, col, currentShip)){
                 // print error message
                 System.out.println("Unacceptable move. Try again.");
                 // get user input again
@@ -156,7 +156,7 @@ public class BattleshipMain {
             //need to do some input validation
             char row = validateUserChar(input);
             int col = validateUserInt(input);   
-            while(!model.checkShipPlacement(row, col)){
+            while(!model.checkShipPlacement(row, col, currentShip)){
                 // print error message
                 System.out.println("Unacceptable move. Try again.");
                 // get user input again
